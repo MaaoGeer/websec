@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 文件管理系统</title>
+    <style>
+        /* 全局样式重置（与文件管理页一致） */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏（复用文件管理页样式） */
+        .navbar {
+            background-color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info span {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .user-link {
+            color: #4285f4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .user-link:hover {
+            color: #3367d6;
+            text-decoration: underline;
+        }
+
+        .logout-btn {
+            background-color: #ea4335;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background-color: #d93025;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 1rem;
+        }
+
+        .card-title i {
+            color: #4285f4;
+            font-size: 1.4rem;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 0.9rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #4285f4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+        }
+
+        .btn-default {
+            background-color: #f5f5f5;
+            color: #555;
+            margin-right: 1rem;
+        }
+
+        .btn-default:hover {
+            background-color: #e9e9e9;
+        }
+
+        /* 提示信息样式 */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-success {
+            background-color: #e6f4ea;
+            color: #188038;
+            border: 1px solid #d3ecd8;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            color: #d93025;
+            border: 1px solid #fcc;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+        /* 帮助文本样式 */
+        .help-text {
+            margin-top: 0.5rem;
+            color: #888;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* 响应式适配（手机端） */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+
+            .btn-default {
+                margin-right: 0;
+            }
+        }
+    </style>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 顶部导航栏（复用文件管理页） -->
+    <nav class="navbar">
+        <h1><i class="fas fa-folder-open"></i> 文件管理系统</h1>
+        <div class="user-info">
+            <span>欢迎，<a href="/user/manage/" class="user-link">{{ request.session.user_name }}</a></span>
+            <a href="/login/" class="logout-btn"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="main-container">
+        <!-- 页面标题 -->
+        <div class="page-title">
+            <h2 style="color: #333; font-size: 1.4rem; font-weight: 600;">用户管理中心</h2>
+            <p style="color: #888; margin-top: 0.5rem;">管理您的账户信息，包括用户名、密码等</p>
+        </div>
+
+        <!-- 修改用户名卡片 -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-user-edit"></i> 修改用户名</h3>
+            <!-- 提示信息（从后端接收 message 参数） -->
+            {% if username_message %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ username_message }}</span>
+                </div>
+            {% endif %}
+            {% if username_error %}
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ username_error }}</span>
+                </div>
+            {% endif %}
+
+            <form method="post" action="/user/update_name/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="current_username">当前用户名</label>
+                    <input type="text" id="current_username" class="form-input" value="{{ request.session.user_name }}" disabled>
+                    <p class="help-text">当前登录账户的用户名，不可修改</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="new_username">新用户名</label>
+                    <input type="text" id="new_username" name="new_username" class="form-input" required minlength="3" maxlength="20">
+                    <p class="help-text">用户名长度为 3-20 个字符，支持字母、数字和下划线</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="username_password">验证密码</label>
+                    <input type="password" id="username_password" name="password" class="form-input" required>
+                    <p class="help-text">输入当前账户密码以确认操作</p>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存修改</button>
+                <a href="/main/" class="btn btn-default"><i class="fas fa-arrow-left"></i> 返回文件管理</a>
+            </form>
+        </div>
+
+        <!-- 修改密码卡片 -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-key"></i> 修改密码</h3>
+            <!-- 提示信息（从后端接收 message 参数） -->
+            {% if password_message %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ password_message }}</span>
+                </div>
+            {% endif %}
+            {% if password_error %}
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ password_error }}</span>
+                </div>
+            {% endif %}
+
+            <form method="post" action="/user/update_password/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="old_password">当前密码</label>
+                    <input type="password" id="old_password" name="old_password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="new_password">新密码</label>
+                    <input type="password" id="new_password" name="new_password" class="form-input" required minlength="6" maxlength="20">
+                    <p class="help-text">密码长度为 6-20 个字符，建议包含字母、数字和特殊符号</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">确认新密码</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+                    <p class="help-text">再次输入新密码，确保两次输入一致</p>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存修改</button>
+                <a href="/main/" class="btn btn-default"><i class="fas fa-arrow-left"></i> 返回文件管理</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- 表单验证脚本 -->
+    <script>
+        // 修改密码表单验证（两次密码一致）
+        const passwordForm = document.querySelector('form[action="/user/update-password/"]');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function(e) {
+                const newPwd = document.getElementById('new_password').value;
+                const confirmPwd = document.getElementById('confirm_password').value;
+
+                if (newPwd !== confirmPwd) {
+                    e.preventDefault(); // 阻止表单提交
+                    // 显示错误提示
+                    let errorAlert = document.querySelector('.alert-error');
+                    if (!errorAlert) {
+                        errorAlert = document.createElement('div');
+                        errorAlert.className = 'alert alert-error';
+                        errorAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>两次输入的新密码不一致，请重新输入</span>';
+                        passwordForm.insertBefore(errorAlert, passwordForm.firstChild);
+                    } else {
+                        errorAlert.querySelector('span').textContent = '两次输入的新密码不一致，请重新输入';
+                    }
+                    // 聚焦到确认密码框
+                    document.getElementById('confirm_password').focus();
+                }
+            });
+        }
+
+        // 修改用户名表单验证（用户名格式）
+        const usernameForm = document.querySelector('form[action="/user/update-username/"]');
+        if (usernameForm) {
+            usernameForm.addEventListener('submit', function(e) {
+                const newUsername = document.getElementById('new_username').value;
+                const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/; // 字母、数字、下划线，3-20位
+
+                if (!usernameRegex.test(newUsername)) {
+                    e.preventDefault(); // 阻止表单提交
+                    // 显示错误提示
+                    let errorAlert = document.querySelector('.alert-error');
+                    if (!errorAlert) {
+                        errorAlert = document.createElement('div');
+                        errorAlert.className = 'alert alert-error';
+                        errorAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>用户名格式错误，仅支持字母、数字和下划线，长度3-20位</span>';
+                        usernameForm.insertBefore(errorAlert, usernameForm.firstChild);
+                    } else {
+                        errorAlert.querySelector('span').textContent = '用户名格式错误，仅支持字母、数字和下划线，长度3-20位';
+                    }
+                    // 聚焦到新用户名框
+                    document.getElementById('new_username').focus();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

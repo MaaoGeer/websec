@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件管理系统</title>
+    <style>
+        /* 全局样式重置（与登录/注册页一致） */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background-color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info span {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* 新增：用户名超链接样式 */
+        .user-link {
+            color: #4285f4; /* 与主题色一致 */
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .user-link:hover {
+            color: #3367d6; /* hover时加深颜色 */
+            text-decoration: underline; /* 可选：hover时显示下划线 */
+        }
+
+        .logout-btn {
+            background-color: #ea4335;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background-color: #d93025;
+        }
+
+        /* 主容器：上传区域 + 文件列表 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 上传文件卡片 */
+        .upload-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title i {
+            color: #4285f4;
+            font-size: 1.4rem;
+        }
+
+        .upload-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-input-placeholder {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px dashed #ddd;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .file-input:focus + .file-input-placeholder,
+        .file-input-placeholder:hover {
+            border-color: #4285f4;
+        }
+
+        .upload-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .upload-btn:hover {
+            background-color: #3367d6;
+        }
+
+        .upload-tip {
+            margin-top: 1rem;
+            color: #888;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* 文件列表卡片 */
+        .file-list-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .file-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .file-table th,
+        .file-table td {
+            padding: 1.2rem 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .file-table th {
+            color: #555;
+            font-weight: 600;
+            background-color: #fafafa;
+        }
+
+        .file-table td {
+            color: #333;
+        }
+
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .file-icon {
+            color: #4285f4;
+            font-size: 1.4rem;
+        }
+
+        .file-size {
+            color: #888;
+        }
+
+        .file-date {
+            color: #888;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .download-btn,
+        .delete-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .download-btn {
+            background-color: #e8f0fe;
+            color: #4285f4;
+        }
+
+        .download-btn:hover {
+            background-color: #d2e3fc;
+        }
+
+        .delete-btn {
+            background-color: #fee;
+            color: #ea4335;
+        }
+
+        .delete-btn:hover {
+            background-color: #fcc;
+        }
+
+        .empty-list {
+            text-align: center;
+            padding: 3rem 0;
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .empty-list i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+            display: block;
+        }
+
+        /* 响应式适配（手机端） */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .upload-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .file-table th:nth-child(2), /* 隐藏文件大小列 */
+            .file-table td:nth-child(2) {
+                display: none;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+    <!-- 引入图标库（文件图标、空状态图标等） -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <h1><i class="fas fa-folder-open"></i> 文件管理系统</h1>
+        <div class="user-info">
+            <!-- 核心修改：给用户名添加超链接，指向用户管理界面 -->
+            <span>欢迎，<a href="/user/manage/" class="user-link">{{ request.session.user_name }}</a></span>
+            <a href="/login/" class="logout-btn"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="main-container">
+        <!-- 上传文件卡片 -->
+        <div class="upload-card">
+            <h2 class="card-title"><i class="fas fa-cloud-upload-alt"></i> 上传文件</h2>
+            <form class="upload-form" method="post" action="/file/upload/" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="file-input-wrapper">
+                    <input type="file" name="file" class="file-input" id="file-upload" multiple>
+                    <label for="file-upload" class="file-input-placeholder">
+                        <i class="fas fa-paperclip"></i> 点击选择文件（支持多文件上传）
+                    </label>
+                </div>
+                <button type="submit" class="upload-btn"><i class="fas fa-upload"></i> 立即上传</button>
+            </form>
+            <p class="upload-tip">
+                <i class="fas fa-info-circle"></i> 支持格式：doc、docx、pdf、jpg、png、zip | 单个文件最大：100MB | 最多同时上传10个文件
+            </p>
+        </div>
+
+        <!-- 文件列表卡片 -->
+        <div class="file-list-card">
+            <h2 class="card-title"><i class="fas fa-list"></i> 我的文件</h2>
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>文件名</th>
+                        <th>文件大小(KB)</th>
+                        <th>上传时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in file_list %}
+                        <tr>
+                            <td>
+                                <div class="file-name">
+                                    {% if file.file_name|lower|slice:"-4:" in '.doc,.docx' %}
+                                        <i class="fas fa-file-word file-icon"></i>
+                                    {% elif file.file_name|lower|slice:"-4:" == '.pdf' %}
+                                        <i class="fas fa-file-pdf file-icon"></i>
+                                    {% elif file.file_name|lower|slice:"-4:" in '.jpg,.png' %}
+                                        <i class="fas fa-file-image file-icon"></i>
+                                    {% elif file.file_name|lower|slice:"-4:" == '.zip' %}
+                                        <i class="fas fa-file-archive file-icon"></i>
+                                    {% elif file.file_name|lower|slice:"-5:" == '.xlsx' or file.file_name|lower|slice:"-4:" == '.xls' %}
+                                        <i class="fas fa-file-excel file-icon"></i>
+                                    {% else %}
+                                        <i class="fas fa-file file-icon"></i>
+                                    {% endif %}
+                                    <span>{{ file.file_name }}</span>
+                                </div>
+                            </td>
+                            <td class="file-size">{{ file.file_size|floatformat:0 }}</td>
+                            <td class="file-date">{{ file.upload_time|date:"Y-m-d H:i:s" }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/file/download/{{ file.id }}/" class="download-btn"><i class="fas fa-download"></i> 下载</a>
+                                    <a href="/file/delete/{{ file.id }}/" class="delete-btn" onclick="return confirm('确定要删除该文件吗？删除后不可恢复')"><i class="fas fa-trash"></i> 删除</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-list">
+                                <i class="fas fa-folder-open"></i>
+                                <p>暂无上传文件，点击上方「选择文件」开始上传</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    <!-- 简单脚本：显示选中的文件名 -->
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const placeholder = document.querySelector('.file-input-placeholder');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                let fileNameText = '';
+                if (this.files.length === 1) {
+                    fileNameText = this.files[0].name; // 单个文件显示文件名
+                } else {
+                    fileNameText = `已选择 ${this.files.length} 个文件`; // 多个文件显示数量
+                }
+                placeholder.innerHTML = `<i class="fas fa-check"></i> ${fileNameText}`;
+                placeholder.style.borderColor = '#34a853';
+            } else {
+                placeholder.innerHTML = '<i class="fas fa-paperclip"></i> 点击选择文件（支持多文件上传）';
+                placeholder.style.borderColor = '#ddd';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <link rel="stylesheet" href="/static/plugins/bootstrap-3.4.1-dist/css/bootstrap.css">
+</head>
+<body>
+    <h1>用户列表</h1>
+    <ol>
+        <li>asd</li>
+        <li>asd</li>
+        <li>asd</li>
+    </ol>
+    <table border="1">
+        <thead>
+        <tr>
+            <td>ID</td>
+            <td>用户名</td>
+            <td>密码</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in user_list %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.password }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+<!--
+    <label>
+        <input type="text" class="btn btn-primary" value="bootstrap导入测试成功">
+    </label>
+-->
+    <script src="\static\js\jquery-3.6.0.min.js"></script>
+    <script src="\static\plugins\bootstrap-3.4.1-dist\js\bootstrap.js"></script>
+
+</body>
+</html>

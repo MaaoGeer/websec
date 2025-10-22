@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户添加</title>
+    <style>
+        /* 全局样式重置（与登录页一致） */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 全屏居中 */
+        }
+
+        /* 表单容器（复用登录页卡片样式） */
+        .form-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* 柔和阴影 */
+            width: 100%;
+            max-width: 400px; /* 最大宽度限制，与登录页一致 */
+        }
+
+        /* 标题样式（与登录页标题统一） */
+        .form-container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        /* 表单样式（复用登录页表单布局） */
+        .add-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem; /* 输入框间距，与登录页一致 */
+        }
+
+        /* 输入框组（与登录页输入组样式统一） */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            color: #555;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4285f4; /* 聚焦时蓝色边框，与登录页一致 */
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        /* 密码框字符间距（与登录页一致） */
+        .form-group input[type="password"] {
+            letter-spacing: 0.1em;
+        }
+
+        /* 提交按钮（复用登录页按钮样式） */
+        .submit-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background-color: #3367d6; /* hover时深色，与登录页一致 */
+        }
+
+        /* 基础提示样式 */
+        .msg {
+            text-align: center;
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            height: 1.2rem; /* 固定高度，避免布局跳动 */
+        }
+
+        /* 新增：成功提示样式（绿色） */
+        .success-msg {
+            color: #34a853;
+        }
+
+        /* 新增：失败提示样式（红色） */
+        .error-msg {
+            color: #ea4335;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>用户注册</h1>
+        <form class="add-form" method="post" action="/user/add/">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            </div>
+
+            <input type="submit" class="submit-btn" value="提交">
+
+            <!-- 提示信息+自动跳转逻辑（保留在当前页面） -->
+            {% if msg_type == 'success' %}
+                <div class="msg success-msg">{{ msg }}</div>
+                <script>
+                    // 2秒后跳转到登录页
+                    setTimeout(function() {
+                        window.location.href = "/login/";
+                    }, 2000);
+                </script>
+            {% elif msg_type == 'error' %}
+                <div class="msg error-msg">{{ msg }}</div>
+            {% else %}
+                <div class="msg"></div> <!-- 占位，避免布局跳动 -->
+            {% endif %}
+        </form>
+    </div>
+</body>
+</html>

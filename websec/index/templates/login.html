@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 全屏居中 */
+        }
+
+        /* 登录容器 */
+        .login-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* 柔和阴影 */
+            width: 100%;
+            max-width: 400px; /* 最大宽度限制 */
+        }
+
+        /* 标题样式 */
+        .login-container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        /* 表单样式 */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem; /* 输入框间距 */
+        }
+
+        /* 输入框组 */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            color: #555;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4285f4; /* 聚焦时蓝色边框 */
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        /* 密码框修正 */
+        .form-group input[type="password"] {
+            letter-spacing: 0.1em; /* 密码字符间距 */
+        }
+
+        /* 按钮组（新增：控制登录/注册按钮并排） */
+        .btn-group {
+            display: flex;
+            gap: 1rem; /* 两个按钮间距 */
+            margin-top: 0.5rem;
+        }
+
+        /* 登录按钮 */
+        .submit-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            flex: 1; /* 占满按钮组宽度 */
+        }
+
+        .submit-btn:hover {
+            background-color: #3367d6;
+        }
+
+        /* 注册按钮（新增：样式区分） */
+        .register-btn {
+            background-color: #34a853; /* 绿色区分登录按钮 */
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            flex: 1; /* 占满按钮组宽度 */
+            text-align: center;
+            text-decoration: none; /* 去除链接下划线 */
+        }
+
+        .register-btn:hover {
+            background-color: #2d9748;
+        }
+
+        /* 错误提示 */
+        .error-message {
+            color: #ea4335; /* 红色错误提示 */
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            height: 1.2rem; /* 固定高度，避免提交后布局跳动 */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>用户登录</h1>
+        <form class="login-form" method="post" action="/login/">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="user">用户名</label>
+                <input type="text" id="user" name="user" placeholder="请输入用户名" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pwd">密码</label>
+                <input type="password" id="pwd" name="pwd" placeholder="请输入密码" required>
+            </div>
+
+            <!-- 按钮组：登录按钮 + 注册按钮 -->
+            <div class="btn-group">
+                <input type="submit" class="submit-btn" value="登录">
+                <a href="/user/add/" class="register-btn">注册</a> <!-- 跳转注册页 -->
+            </div>
+
+            <div class="error-message">{{ trip }}</div> <!-- 错误提示区域 -->
+        </form>
+    </div>
+</body>
+</html>
