@@ -59,6 +59,7 @@ python manage.py migrate
 
 ```python manage.py runserver```
 
-访问127.0.0.1/8080即可使用
+即可使用
+
 
 
